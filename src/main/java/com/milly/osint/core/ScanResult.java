@@ -9,7 +9,7 @@ public class ScanResult {
     private final String profileUrl;
     private final Map<String, String> metadata;
 
-    public ScanResults(String siteName, boolean exists, String profileUrl, Map<String, String> metadata) {
+    public ScanResult(String siteName, boolean exists, String profileUrl, Map<String, String> metadata) {
         this.siteName = siteName;
         this.exists = exists;
         this.profileUrl = profileUrl;
