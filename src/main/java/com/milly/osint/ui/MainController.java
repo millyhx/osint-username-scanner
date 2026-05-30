@@ -4,6 +4,7 @@ import com.milly.osint.core.ScanResult;
 import com.milly.osint.core.ScannerService;
 import javafx.fxml.FXML;
 import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableRow;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.beans.property.SimpleStringProperty;
@@ -32,6 +33,25 @@ public class MainController {
 
         urlColumn.setCellValueFactory(data ->
                 new SimpleStringProperty(data.getValue().getProfileUrl()));
+
+        resultsTable.setRowFactory(table -> new TableRow<>() {
+            @Override
+            protected void updateItem(ScanResult item, boolean empty) {
+                super.updateItem(item, empty);
+
+                if (empty || item == null) {
+                    setStyle("");
+                    return;
+                }
+
+                if (item.exists()) {
+                    setStyle("-fx-background-color: #c8f7c5;"); // light green
+                } else {
+                    setStyle("-fx-background-color: #f7c5c5;"); // light red
+                }
+            }
+        });
+
     }
 
 

@@ -8,5 +8,55 @@
     "name": "Reddit",
     "url": "https://www.reddit.com/user/{username}",
     "existsWhenStatus": 200
+  },
+  {
+    "name": "TikTok",
+    "url": "https://www.tiktok.com/@{username}",
+    "existsWhenStatus": 200
+  },
+  {
+    "name": "Instagram",
+    "url": "https://www.instagram.com/{username}/",
+    "existsWhenStatus": 200
+  },
+  {
+    "name": "LinkedIn",
+    "url": "https://www.linkedin.com/in/{username}/",
+    "existsWhenStatus": 200
+  },
+  {
+    "name": "Steam",
+    "url": "https://steamcommunity.com/id/{username}",
+    "existsWhenStatus": 200
+  },
+  {
+    "name": "Pinterest",
+    "url": "https://www.pinterest.com/{username}/",
+    "existsWhenStatus": 200
+  },
+  {
+    "name": "Spotify",
+    "url": "https://open.spotify.com/user/{username}",
+    "existsWhenStatus": 200
+  },
+  {
+    "name": "GitLab",
+    "url": "https://gitlab.com/{username}",
+    "existsWhenStatus": 200
+  },
+  {
+    "name": "YouTube",
+    "url": "https://www.youtube.com/@{username}",
+    "existsWhenStatus": 200
+  },
+  {
+    "name": "Snapchat",
+    "url": "https://www.snapchat.com/add/{username}",
+    "existsWhenStatus": 200
+  },
+  {
+    "name": "Twitter",
+    "url": "https://twitter.com/{username}",
+    "existsWhenStatus": 200
   }
 ]
