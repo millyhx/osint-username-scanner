@@ -3,13 +3,14 @@ package com.milly.osint.ui;
 import com.milly.osint.core.ScanResult;
 import com.milly.osint.core.ScannerService;
 import javafx.fxml.FXML;
-import javafx.scene.control.TableColumn;
-import javafx.scene.control.TableRow;
-import javafx.scene.control.TableView;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 import javafx.beans.property.SimpleStringProperty;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
+import javafx.scene.layout.VBox;
 
 import java.util.List;
+import java.util.Map;
 
 public class MainController {
 
@@ -19,6 +20,16 @@ public class MainController {
     @FXML private TableColumn<ScanResult, String> siteColumn;
     @FXML private TableColumn<ScanResult, String> existsColumn;
     @FXML private TableColumn<ScanResult, String> urlColumn;
+
+    @FXML private VBox metadataBox;
+    @FXML private Label nameLabel;
+    @FXML private Label bioLabel;
+    @FXML private Label followersLabel;
+    @FXML private Label followingLabel;
+    @FXML private Label reposLabel;
+    @FXML private ImageView avatarImage;
+
+
 
     private final ScannerService scannerService = new ScannerService();
 
@@ -54,9 +65,20 @@ public class MainController {
 
     }
 
+    private void clearMetadata() {
+        nameLabel.setText("Name:");
+        bioLabel.setText("Bio:");
+        followersLabel.setText("Followers:");
+        followingLabel.setText("Following:");
+        reposLabel.setText("Public Repos:");
+        avatarImage.setImage(null);
+    }
+
+
 
     @FXML
     private void onScanClicked() {
+        clearMetadata();
         String username = usernameField.getText().trim();
 
         if (username.isEmpty()) {
@@ -71,6 +93,29 @@ public class MainController {
 
         // Add results to table
         resultsTable.getItems().addAll(results);
+
+        resultsTable.setOnMouseClicked(event -> {
+            ScanResult selected = resultsTable.getSelectionModel().getSelectedItem();
+            if (selected == null) return;
+
+            Map<String, String> m = selected.getMetadata();
+
+            nameLabel.setText("Name: " + m.getOrDefault("name", ""));
+            bioLabel.setText("Bio: " + m.getOrDefault("bio", ""));
+            followersLabel.setText("Followers: " + m.getOrDefault("followers", ""));
+            followingLabel.setText("Following: " + m.getOrDefault("following", ""));
+            reposLabel.setText("Public Repos: " + m.getOrDefault("public_repos", ""));
+
+            // Load avatar if present
+            String avatarUrl = m.get("avatar");
+            if (avatarUrl != null && !avatarUrl.isEmpty()) {
+                avatarImage.setImage(new Image(avatarUrl, true));
+            } else {
+                avatarImage.setImage(null);
+            }
+        });
+
+
     }
 
 }

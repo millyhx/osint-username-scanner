@@ -6,24 +6,47 @@
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.TableView?>
 <?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.image.ImageView?>
+
 <VBox xmlns="http://javafx.com/javafx"
       xmlns:fx="http://javafx.com/fxml"
       fx:controller="com.milly.osint.ui.MainController"
-      spacing="10" alignment="CENTER">
+      spacing="10" alignment="CENTER"
+      style="-fx-padding: 15;">
 
-<!-- Search bar + button -->
-    <HBox>
+    <!-- Search bar + button -->
+    <HBox spacing="10">
         <TextField fx:id="usernameField" promptText="Enter username..." />
         <Button text="Scan" onAction="#onScanClicked" />
     </HBox>
 
-    <!-- Results table -->
-    <TableView fx:id="resultsTable" prefHeight="400">
-        <columns>
-            <TableColumn fx:id="siteColumn" text="Site" prefWidth="150" />
-            <TableColumn fx:id="existsColumn" text="Exists?" prefWidth="100" />
-            <TableColumn fx:id="urlColumn" text="Profile URL" prefWidth="300" />
-        </columns>
-    </TableView>
+    <!-- Main content: Table (left) + Metadata panel (right) -->
+    <HBox spacing="20">
+
+        <!-- Results table -->
+        <TableView fx:id="resultsTable" prefHeight="400" prefWidth="550">
+            <columns>
+                <TableColumn fx:id="siteColumn" text="Site" prefWidth="150" />
+                <TableColumn fx:id="existsColumn" text="Exists?" prefWidth="100" />
+                <TableColumn fx:id="urlColumn" text="Profile URL" prefWidth="300" />
+            </columns>
+        </TableView>
+
+        <!-- Metadata panel -->
+        <VBox fx:id="metadataBox" spacing="8" prefWidth="250" style="-fx-padding: 10;">
+            <Label text="Metadata" style="-fx-font-size: 16; -fx-font-weight: bold;" />
+
+            <Label fx:id="nameLabel" text="Name:" />
+            <Label fx:id="bioLabel" text="Bio:" wrapText="true" />
+            <Label fx:id="followersLabel" text="Followers:" />
+            <Label fx:id="followingLabel" text="Following:" />
+            <Label fx:id="reposLabel" text="Public Repos:" />
+
+            <!-- Avatar image -->
+            <ImageView fx:id="avatarImage" fitWidth="120" preserveRatio="true" />
+        </VBox>
+
+    </HBox>
 
 </VBox>

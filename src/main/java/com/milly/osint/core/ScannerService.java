@@ -37,11 +37,18 @@ public class ScannerService {
 
             boolean exists = response.statusCode() == site.getExistsWhenStatus();
 
-            return new ScanResult(site.getName(), exists, url, Map.of());
+            Map<String, String> metadata = Map.of();
+
+            if (exists && site.getMetadataExtractor() != null) {
+                metadata = site.getMetadataExtractor().extract(username);
+            }
+
+            return new ScanResult(site.getName(), exists, url, metadata);
 
         } catch (Exception e) {
-            return new ScanResult(site.getName(), false, url, Map.of());
+            return new ScanResult(site.getName(), false, url, Map.of("error", e.getMessage()));
         }
     }
+
 
 }
