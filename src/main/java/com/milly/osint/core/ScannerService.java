@@ -7,7 +7,6 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 public class ScannerService {
 
@@ -16,14 +15,13 @@ public class ScannerService {
         List<ScanResult> results = new ArrayList<>();
 
         for (SiteDefinition site : sites) {
-            ScanResult result = scanSite(site, username);
-            results.add(result);
+            results.add(scanSite(site, username));
         }
 
         return results;
     }
 
-    private ScanResult scanSite(SiteDefinition site, String username) {
+    public ScanResult scanSite(SiteDefinition site, String username) {
         String url = site.getUrl().replace("{username}", username);
 
         try {
@@ -37,18 +35,10 @@ public class ScannerService {
 
             boolean exists = response.statusCode() == site.getExistsWhenStatus();
 
-            Map<String, String> metadata = Map.of();
-
-            if (exists && site.getMetadataExtractor() != null) {
-                metadata = site.getMetadataExtractor().extract(username);
-            }
-
-            return new ScanResult(site.getName(), exists, url, metadata);
+            return new ScanResult(site.getName(), exists, url);
 
         } catch (Exception e) {
-            return new ScanResult(site.getName(), false, url, Map.of("error", e.getMessage()));
+            return new ScanResult(site.getName(), false, url);
         }
     }
-
-
 }

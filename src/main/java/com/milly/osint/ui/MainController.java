@@ -2,15 +2,21 @@ package com.milly.osint.ui;
 
 import com.milly.osint.core.ScanResult;
 import com.milly.osint.core.ScannerService;
+import com.milly.osint.core.SiteDefinition;
+import com.milly.osint.core.SiteLoader;
+import javafx.animation.KeyFrame;
+import javafx.animation.KeyValue;
+import javafx.animation.Timeline;
+import javafx.concurrent.Task;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
-import javafx.beans.property.SimpleStringProperty;
-import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
 import javafx.scene.layout.VBox;
+import javafx.scene.web.WebEngine;
+import javafx.scene.web.WebView;
+import javafx.util.Duration;
 
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 public class MainController {
 
@@ -21,30 +27,30 @@ public class MainController {
     @FXML private TableColumn<ScanResult, String> existsColumn;
     @FXML private TableColumn<ScanResult, String> urlColumn;
 
-    @FXML private VBox metadataBox;
-    @FXML private Label nameLabel;
-    @FXML private Label bioLabel;
-    @FXML private Label followersLabel;
-    @FXML private Label followingLabel;
-    @FXML private Label reposLabel;
-    @FXML private ImageView avatarImage;
+    @FXML private ProgressBar progressBar;
 
+    @FXML private Button openProfileButton;
 
+    @FXML private VBox webViewContainer;
+    @FXML private WebView webView;
 
     private final ScannerService scannerService = new ScannerService();
 
 
     @FXML
     private void initialize() {
+
+        // Table column bindings
         siteColumn.setCellValueFactory(data ->
-                new SimpleStringProperty(data.getValue().getSiteName()));
+                new javafx.beans.property.SimpleStringProperty(data.getValue().getSiteName()));
 
         existsColumn.setCellValueFactory(data ->
-                new SimpleStringProperty(data.getValue().exists() ? "Yes" : "No"));
+                new javafx.beans.property.SimpleStringProperty(data.getValue().exists() ? "Yes" : "No"));
 
         urlColumn.setCellValueFactory(data ->
-                new SimpleStringProperty(data.getValue().getProfileUrl()));
+                new javafx.beans.property.SimpleStringProperty(data.getValue().getProfileUrl()));
 
+        // Row colouring
         resultsTable.setRowFactory(table -> new TableRow<>() {
             @Override
             protected void updateItem(ScanResult item, boolean empty) {
@@ -56,31 +62,31 @@ public class MainController {
                 }
 
                 if (item.exists()) {
-                    setStyle("-fx-background-color: #c8f7c5;"); // light green
+                    setStyle("-fx-background-color: #c8f7c5;");
                 } else {
-                    setStyle("-fx-background-color: #f7c5c5;"); // light red
+                    setStyle("-fx-background-color: #f7c5c5;");
                 }
             }
         });
 
-    }
+        // Disable open button until a valid row is selected
+        resultsTable.getSelectionModel().selectedItemProperty().addListener((obs, oldVal, newVal) -> {
+            openProfileButton.setDisable(newVal == null || !newVal.exists());
+        });
 
-    private void clearMetadata() {
-        nameLabel.setText("Name:");
-        bioLabel.setText("Bio:");
-        followersLabel.setText("Followers:");
-        followingLabel.setText("Following:");
-        reposLabel.setText("Public Repos:");
-        avatarImage.setImage(null);
+        // Hide WebView panel initially
+        webViewContainer.setPrefHeight(0);
+        webViewContainer.setMaxHeight(0);
     }
-
 
 
     @FXML
     private void onScanClicked() {
-        clearMetadata();
-        String username = usernameField.getText().trim();
 
+        // Collapse WebView when scanning again
+        collapseWebView();
+
+        String username = usernameField.getText().trim();
         if (username.isEmpty()) {
             System.out.println("No username entered");
             return;
@@ -88,34 +94,95 @@ public class MainController {
 
         resultsTable.getItems().clear();
 
-        // Run scan
-        List<ScanResult> results = scannerService.scanUsername(username);
+        Task<List<ScanResult>> task = new Task<>() {
+            @Override
+            protected List<ScanResult> call() throws Exception {
+                List<SiteDefinition> sites = SiteLoader.loadSites();
+                List<ScanResult> results = new ArrayList<>();
 
-        // Add results to table
-        resultsTable.getItems().addAll(results);
+                int total = sites.size();
+                int count = 0;
 
-        resultsTable.setOnMouseClicked(event -> {
-            ScanResult selected = resultsTable.getSelectionModel().getSelectedItem();
-            if (selected == null) return;
+                for (SiteDefinition site : sites) {
+                    ScanResult result = scannerService.scanSite(site, username);
+                    results.add(result);
 
-            Map<String, String> m = selected.getMetadata();
+                    count++;
+                    updateProgress(count, total);
+                }
 
-            nameLabel.setText("Name: " + m.getOrDefault("name", ""));
-            bioLabel.setText("Bio: " + m.getOrDefault("bio", ""));
-            followersLabel.setText("Followers: " + m.getOrDefault("followers", ""));
-            followingLabel.setText("Following: " + m.getOrDefault("following", ""));
-            reposLabel.setText("Public Repos: " + m.getOrDefault("public_repos", ""));
-
-            // Load avatar if present
-            String avatarUrl = m.get("avatar");
-            if (avatarUrl != null && !avatarUrl.isEmpty()) {
-                avatarImage.setImage(new Image(avatarUrl, true));
-            } else {
-                avatarImage.setImage(null);
+                return results;
             }
+        };
+
+        task.setOnSucceeded(e -> {
+            resultsTable.getItems().addAll(task.getValue());
+            progressBar.progressProperty().unbind();
+            progressBar.setProgress(0);
         });
 
+        progressBar.progressProperty().bind(task.progressProperty());
 
+        new Thread(task).start();
+    }
+
+
+    // ---------------------------------------------------------
+    // WebView: Open Profile
+    // ---------------------------------------------------------
+
+    @FXML
+    private void onOpenProfileClicked() {
+        ScanResult selected = resultsTable.getSelectionModel().getSelectedItem();
+        if (selected == null || !selected.exists()) return;
+
+        WebEngine engine = webView.getEngine();
+        engine.load(selected.getProfileUrl());
+
+        expandWebView();
+    }
+
+
+    // ---------------------------------------------------------
+    // Slide Animation (300ms smooth)
+    // ---------------------------------------------------------
+
+    private void expandWebView() {
+        Timeline timeline = new Timeline(
+                new KeyFrame(Duration.millis(300),
+                        new KeyValue(webViewContainer.prefHeightProperty(), 400),
+                        new KeyValue(webViewContainer.maxHeightProperty(), 400))
+        );
+        timeline.play();
+    }
+
+    private void collapseWebView() {
+        Timeline timeline = new Timeline(
+                new KeyFrame(Duration.millis(300),
+                        new KeyValue(webViewContainer.prefHeightProperty(), 0),
+                        new KeyValue(webViewContainer.maxHeightProperty(), 0))
+        );
+        timeline.play();
+    }
+
+
+    // ---------------------------------------------------------
+    // Tools Menu (placeholders for now)
+    // ---------------------------------------------------------
+
+    @FXML
+    private void onUsernameIntelligence() {
+        System.out.println("Username Intelligence tool clicked");
+    }
+
+    @FXML
+    private void onUsernameSuggestions() {
+        System.out.println("Username Suggestions tool clicked");
+    }
+
+    @FXML
+    private void onBreachLookup() {
+        System.out.println("Breach Lookup tool clicked");
     }
 
 }
