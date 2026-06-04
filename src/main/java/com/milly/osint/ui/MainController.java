@@ -10,6 +10,7 @@ import javafx.animation.Timeline;
 import javafx.concurrent.Task;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.VBox;
 import javafx.scene.web.WebEngine;
 import javafx.scene.web.WebView;
@@ -77,6 +78,57 @@ public class MainController {
         // Hide WebView panel initially
         webViewContainer.setPrefHeight(0);
         webViewContainer.setMaxHeight(0);
+
+        // ---------------------------------------------------------
+        // Keyboard Shortcuts
+        // ---------------------------------------------------------
+
+        usernameField.sceneProperty().addListener((obs, oldScene, newScene) -> {
+            if (newScene != null) {
+                newScene.addEventFilter(KeyEvent.KEY_PRESSED, event -> {
+                    switch (event.getCode()) {
+                        case ENTER -> onScanClicked();
+                        case O -> {
+                            if (event.isControlDown()) onOpenProfileClicked();
+                        }
+                        case L -> {
+                            if (event.isControlDown()) clearResults();
+                        }
+                        case ESCAPE -> collapseWebView();
+                        case F1 -> showHelp();
+                    }
+                });
+            }
+        });
+
+    }
+
+    private void clearResults() {
+        resultsTable.getItems().clear();
+    }
+
+    // ---------------------------------------------------------
+    // Help Pane
+    // ---------------------------------------------------------
+    @FXML
+    private void showHelp() {
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle("Help & Shortcuts");
+        alert.setHeaderText("How to use the OSINT Username Scanner");
+
+        String helpText =
+                "• Enter a username and press Enter to scan\n" +
+                        "• Select a site and press Ctrl+O to open the profile\n" +
+                        "• Press Esc to close the WebView panel\n\n" +
+                        "Keyboard Shortcuts:\n" +
+                        "Enter → Scan\n" +
+                        "Ctrl + O → Open Profile\n" +
+                        "Ctrl + L → Clear Results\n" +
+                        "Esc → Close WebView\n" +
+                        "F1 → Help";
+
+        alert.setContentText(helpText);
+        alert.showAndWait();
     }
 
 
@@ -125,6 +177,8 @@ public class MainController {
 
         new Thread(task).start();
     }
+
+
 
 
     // ---------------------------------------------------------
