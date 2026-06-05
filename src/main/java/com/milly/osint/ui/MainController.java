@@ -225,13 +225,8 @@ public class MainController {
 
 
     // ---------------------------------------------------------
-    // Tools Menu (placeholders for now)
+    // Tools Menu
     // ---------------------------------------------------------
-
-    @FXML
-    private void onUsernameIntelligence() {
-        System.out.println("Username Intelligence tool clicked");
-    }
 
     @FXML
     private void onUsernameSuggestions() {
@@ -256,6 +251,26 @@ public class MainController {
             e.printStackTrace();
         }
     }
+
+    // ---------------------------------------------------------
+    // Username Intelligence
+    // ---------------------------------------------------------
+
+    @FXML
+    private void onUsernameIntelligence() {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/ui/username_intelligence.fxml"));
+            Parent root = loader.load();
+
+            Stage stage = new Stage();
+            stage.setTitle("Username Intelligence");
+            stage.setScene(new Scene(root));
+            stage.show();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
 
 
 }
