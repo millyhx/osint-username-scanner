@@ -1,9 +1,11 @@
 C:\osint-username-scanner\src\main\java\com\milly\osint\ui\MainController.java
 C:\osint-username-scanner\src\main\java\com\milly\osint\App.java
+C:\osint-username-scanner\src\main\java\com\milly\osint\core\BreachLookupService.java
 C:\osint-username-scanner\src\main\java\com\milly\osint\http\HttpClientProvider.java
 C:\osint-username-scanner\src\main\java\com\milly\osint\core\SiteLoader.java
-C:\osint-username-scanner\src\main\java\com\milly\osint\ui\MainView.java
+C:\osint-username-scanner\src\main\java\com\milly\osint\ui\BreachLookupController.java
 C:\osint-username-scanner\src\main\java\com\milly\osint\util\JsonUtils.java
 C:\osint-username-scanner\src\main\java\com\milly\osint\core\ScannerService.java
 C:\osint-username-scanner\src\main\java\com\milly\osint\core\ScanResult.java
+C:\osint-username-scanner\src\main\java\com\milly\osint\core\BreachEntry.java
 C:\osint-username-scanner\src\main\java\com\milly\osint\core\SiteDefinition.java

@@ -9,11 +9,15 @@ import javafx.animation.KeyValue;
 import javafx.animation.Timeline;
 import javafx.concurrent.Task;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.VBox;
 import javafx.scene.web.WebEngine;
 import javafx.scene.web.WebView;
+import javafx.stage.Stage;
 import javafx.util.Duration;
 
 import java.util.ArrayList;
@@ -234,9 +238,24 @@ public class MainController {
         System.out.println("Username Suggestions tool clicked");
     }
 
+
+    // ---------------------------------------------------------
+    // Breach Lookup
+    // ---------------------------------------------------------
     @FXML
     private void onBreachLookup() {
-        System.out.println("Breach Lookup tool clicked");
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/ui/breach_lookup.fxml"));
+            Parent root = loader.load();
+
+            Stage stage = new Stage();
+            stage.setTitle("Breach Lookup");
+            stage.setScene(new Scene(root));
+            stage.show();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
+
 
 }

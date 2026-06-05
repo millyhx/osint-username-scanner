@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox xmlns="http://javafx.com/javafx"
+      xmlns:fx="http://javafx.com/fxml"
+      fx:controller="com.milly.osint.ui.BreachLookupController"
+      spacing="10" style="-fx-padding: 15;">
+
+    <Label text="Enter username or email to check for breaches:"/>
+    <TextField fx:id="queryField" promptText="username or email"/>
+    <Button text="Search" onAction="#onSearchClicked"/>
+
+    <TableView fx:id="resultsTable" prefHeight="300">
+        <columns>
+            <TableColumn fx:id="sourceColumn" text="Source" prefWidth="150"/>
+            <TableColumn fx:id="emailColumn" text="Email" prefWidth="200"/>
+            <TableColumn fx:id="passwordColumn" text="Password" prefWidth="250"/>
+        </columns>
+    </TableView>
+</VBox>
