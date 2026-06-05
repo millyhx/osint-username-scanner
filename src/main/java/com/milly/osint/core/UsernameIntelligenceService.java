@@ -1,24 +1,55 @@
 package com.milly.osint.core;
 
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 public class UsernameIntelligenceService {
 
+    private final Set<String> nameDictionary = new HashSet<>();
+
+    public UsernameIntelligenceService() {
+        loadNameDictionary();
+    }
+
+    private void loadNameDictionary() {
+        try {
+            BufferedReader reader = new BufferedReader(
+                    new InputStreamReader(
+                            getClass().getResourceAsStream("/names.txt")
+                    )
+            );
+
+            String line;
+            while ((line = reader.readLine()) != null) {
+                nameDictionary.add(line.trim().toLowerCase());
+            }
+
+            reader.close();
+        } catch (Exception e) {
+            System.err.println("Failed to load name dictionary: " + e.getMessage());
+        }
+    }
+
     public List<UsernameIntelligenceResult> analyse(String username) {
         List<UsernameIntelligenceResult> results = new ArrayList<>();
-
         String lower = username.toLowerCase();
 
-        // Detect possible name
-        if (lower.matches(".*(milly|ben|john|emma|alex|sam|chris|kate|lucy).*")) {
-            results.add(new UsernameIntelligenceResult(
-                    "Possible Name",
-                    "Username contains what looks like a first name"
-            ));
+        // 1. Name detection
+        for (String name : nameDictionary) {
+            if (lower.contains(name)) {
+                results.add(new UsernameIntelligenceResult(
+                        "Possible Name",
+                        "Contains the name: " + name
+                ));
+                break; // avoid spamming multiple names
+            }
         }
 
-        // Detect birth year
+        // 2. Birth year detection
         if (lower.matches(".*(19[7-9][0-9]|20[0-2][0-9]).*")) {
             results.add(new UsernameIntelligenceResult(
                     "Possible Birth Year",
@@ -26,7 +57,7 @@ public class UsernameIntelligenceService {
             ));
         }
 
-        // Detect numbers
+        // 3. Numbers
         if (lower.matches(".*\\d+.*")) {
             results.add(new UsernameIntelligenceResult(
                     "Numbers Detected",
@@ -34,7 +65,7 @@ public class UsernameIntelligenceService {
             ));
         }
 
-        // Detect location hints
+        // 4. Location hints
         if (lower.matches(".*(uk|usa|ldn|bristol|nyc|manchester|scotland).*")) {
             results.add(new UsernameIntelligenceResult(
                     "Possible Location",
@@ -42,15 +73,15 @@ public class UsernameIntelligenceService {
             ));
         }
 
-        // Detect hobby keywords
+        // 5. Hobbies
         if (lower.matches(".*(gamer|dev|coder|chef|baker|artist|music|photo).*")) {
             results.add(new UsernameIntelligenceResult(
                     "Possible Hobby",
-                    "Username contains a hobby or interest"
+                    "Contains a hobby or interest keyword"
             ));
         }
 
-        // Detect brand-like patterns
+        // 6. Brand-like patterns
         if (lower.matches(".*(official|real|the|hq|inc|corp).*")) {
             results.add(new UsernameIntelligenceResult(
                     "Brand Pattern",
@@ -58,15 +89,15 @@ public class UsernameIntelligenceService {
             ));
         }
 
-        // Detect underscores / separators
+        // 7. Separators
         if (username.contains("_") || username.contains(".") || username.contains("-")) {
             results.add(new UsernameIntelligenceResult(
                     "Separators",
-                    "Username uses separators (._-)"
+                    "Uses separators such as underscore, dot, or hyphen"
             ));
         }
 
-        // Detect short usernames
+        // 8. Length analysis
         if (username.length() <= 5) {
             results.add(new UsernameIntelligenceResult(
                     "Short Username",
@@ -74,7 +105,6 @@ public class UsernameIntelligenceService {
             ));
         }
 
-        // Detect long usernames
         if (username.length() >= 15) {
             results.add(new UsernameIntelligenceResult(
                     "Long Username",
